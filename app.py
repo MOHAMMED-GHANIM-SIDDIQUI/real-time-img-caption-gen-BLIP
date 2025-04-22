@@ -2,29 +2,41 @@ import streamlit as st
 from PIL import Image
 from transformers import BlipProcessor, BlipForConditionalGeneration
 import torch
+import logging
+
+# Optional logging for debug (can remove later)
+logging.basicConfig(level=logging.INFO)
 
 class ImageCaption:
     def __init__(self):
+        # Only load processor once
         self.processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
-        self.model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
 
     def generate(self, img):
         if isinstance(img, str):
             img = Image.open(img)
 
-        device = torch.device("cpu")  # Force everything to run on CPU (Streamlit Cloud doesn't support GPU)
-        self.model.to(device)
+        # Force everything to CPU
+        torch_device = torch.device("cpu")
 
-        # Process image and move tensors to the same device
+        # Reload model on CPU every time (important for Streamlit Cloud)
+        model = BlipForConditionalGeneration.from_pretrained(
+            "Salesforce/blip-image-captioning-base"
+        ).to(torch_device)
+        model.eval()
+
+        # Process and move inputs to CPU
         inputs = self.processor(images=img, return_tensors='pt')
-        inputs = {k: v.to(device) for k, v in inputs.items()}
+        inputs = {k: v.to(torch_device) for k, v in inputs.items()}
 
-        output = self.model.generate(**inputs)
+        # Generate caption
+        with torch.no_grad():
+            output = model.generate(**inputs)
+
         caption = self.processor.decode(output[0], skip_special_tokens=True)
-
         return img, caption
 
-# Initialize the captioning class
+# Initialize
 ic = ImageCaption()
 
 # --- Streamlit UI ---
@@ -51,10 +63,12 @@ if image is not None:
     st.image(image, caption="🖼️ Uploaded or Captured Image", use_column_width=True)
     st.markdown("### 🧠 Generating Caption...")
 
-    result_img, caption = ic.generate(image)
-
-    st.image(result_img, caption="🖼️ Image (No Watermark)", use_column_width=True)
-    st.write("**📝 Generated Caption:**", caption)
+    try:
+        result_img, caption = ic.generate(image)
+        st.image(result_img, caption="🖼️ Image (No Watermark)", use_column_width=True)
+        st.write("**📝 Generated Caption:**", caption)
+    except Exception as e:
+        st.error(f"Error generating caption: {str(e)}")
 
     st.markdown("<br><br><center>🔧 Created by: MOHAMMED GHANIM SIDDIQUI</center>", unsafe_allow_html=True)
     st.markdown("---")
