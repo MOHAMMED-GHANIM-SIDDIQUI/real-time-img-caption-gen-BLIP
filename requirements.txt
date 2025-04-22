@@ -1,0 +1,5 @@
+transformers
+torch
+Pillow
+streamlit
+gradio
