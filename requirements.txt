@@ -3,3 +3,4 @@ torch
 Pillow
 streamlit
 gradio
+gtts
