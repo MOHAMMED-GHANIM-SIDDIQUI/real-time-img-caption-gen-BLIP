@@ -10,8 +10,10 @@ try:
     from streamlit_webrtc import VideoProcessorBase, WebRtcMode, webrtc_streamer
 
     WEBRTC_AVAILABLE = True
-except ImportError:
+    WEBRTC_IMPORT_ERROR = ""
+except ImportError as error:
     WEBRTC_AVAILABLE = False
+    WEBRTC_IMPORT_ERROR = str(error)
 
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png"}
@@ -623,7 +625,9 @@ def render_live_camera():
 
     if not WEBRTC_AVAILABLE:
         render_alert(
-            "Live camera support needs the streamlit-webrtc package. It is listed in requirements.txt; install it and restart the app to enable this tab."
+            "Live camera support could not load streamlit-webrtc. "
+            f"Cloud import error: {WEBRTC_IMPORT_ERROR or 'unknown error'}. "
+            "Reboot the Streamlit app after the latest requirements install finishes."
         )
         return None
 
