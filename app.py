@@ -17,6 +17,11 @@ except ImportError:
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png"}
 ALLOWED_VIDEO_TYPES = {"video/mp4", "video/quicktime", "video/x-msvideo"}
 MAX_IMAGE_SIZE_MB = 10
+RTC_CONFIGURATION = {
+    "iceServers": [
+        {"urls": ["stun:stun.l.google.com:19302"]},
+    ],
+}
 
 
 st.set_page_config(
@@ -627,6 +632,7 @@ def render_live_camera():
         mode=WebRtcMode.SENDRECV,
         video_processor_factory=LatestFrameProcessor,
         media_stream_constraints={"video": True, "audio": False},
+        rtc_configuration=RTC_CONFIGURATION,
         async_processing=True,
     )
 
