@@ -62,11 +62,11 @@ def load_processor():
     try:
         return BlipProcessor.from_pretrained(
             CAPTION_MODEL_NAME,
-            use_fast=True,
+            use_fast=False,
             local_files_only=True,
         )
     except OSError:
-        return BlipProcessor.from_pretrained(CAPTION_MODEL_NAME, use_fast=True)
+        return BlipProcessor.from_pretrained(CAPTION_MODEL_NAME, use_fast=False)
 
 
 def load_model(model_kwargs):
