@@ -381,8 +381,18 @@ def inject_global_styles():
             background: linear-gradient(90deg, var(--cyan), var(--primary), var(--pink));
         }
 
-        footer, #MainMenu, header {
+        footer, #MainMenu {
             visibility: hidden;
+        }
+
+        [data-testid="stHeader"] {
+            background: transparent;
+            color: var(--text);
+        }
+
+        [data-testid="collapsedControl"] {
+            color: var(--text);
+            z-index: 999999;
         }
 
         .footer {
